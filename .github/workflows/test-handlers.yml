@@ -3,13 +3,13 @@ name: Test (handlers)
 on:
   push:
     paths:
-      - 'backend/handlers/**'
+      - 'backend/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build test image
         working-directory: backend
