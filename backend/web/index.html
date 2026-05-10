@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bengali Alphabet</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      color: #1a1a1a;
+    }
+
+    /* nav */
+    nav {
+      display: flex;
+      gap: 4px;
+      padding: 20px 24px 0;
+    }
+    .tab {
+      padding: 8px 20px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #ddd;
+      color: #666;
+      border: none;
+      transition: background 0.1s, color 0.1s;
+    }
+    .tab.active {
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    /* pages */
+    .page {
+      display: none;
+      padding: 24px;
+      background: #fff;
+      min-height: calc(100vh - 52px);
+    }
+    .page.active { display: block; }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* alphabet groups */
+    .group { margin-bottom: 24px; }
+    .group-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .group-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* cells */
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f7f7f7;
+      border: 1px solid #e4e4e4;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s, transform 0.1s;
+    }
+    .cell:hover {
+      background: #e8f0fe;
+      border-color: #93b4f7;
+      transform: scale(1.07);
+    }
+    .cell.char-cell {
+      width: 58px;
+      height: 58px;
+      font-size: 1.7rem;
+    }
+    .cell.conjunct-cell {
+      width: 72px;
+      height: 64px;
+      font-size: 1.5rem;
+      gap: 2px;
+    }
+    .cell .components-hint {
+      font-size: 0.55rem;
+      color: #aaa;
+      letter-spacing: 0.02em;
+    }
+
+    /* conjunct grid — flat, no sub-groups */
+    #conjunct-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* modal */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.42);
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #overlay.open { display: flex; }
+
+    #modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      width: 90%;
+      max-width: 340px;
+      position: relative;
+    }
+    #close {
+      position: absolute;
+      top: 10px; right: 14px;
+      background: none; border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: #aaa;
+    }
+    #close:hover { color: #333; }
+
+    #detail-char {
+      font-size: 5rem;
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+
+    /* components row */
+    .components-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .component-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+    .component-box .glyph { font-size: 1.6rem; }
+    .component-box .label { font-size: 0.65rem; color: #999; margin-top: 2px; }
+    .plus { font-size: 1rem; color: #bbb; }
+    .arrow { font-size: 1rem; color: #bbb; }
+    .result-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #e8f0fe;
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+    .result-box .glyph { font-size: 1.6rem; }
+    .result-box .label { font-size: 0.65rem; color: #888; margin-top: 2px; }
+
+    #detail-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #detail-table td {
+      padding: 7px 2px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+    #detail-table tr:last-child td { border-bottom: none; }
+    #detail-table td:first-child {
+      color: #999;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: 34%;
+      padding-top: 9px;
+    }
+
+    .vowel-sign-pair {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .vowel-sign-glyph {
+      font-size: 1.6rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      width: 40px; height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vowel-sign-example { font-size: 0.85rem; color: #555; }
+
+    #error { color: #c00; padding: 24px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <button class="tab active" onclick="switchTab('alphabet', this)">Alphabet</button>
+    <button class="tab" onclick="switchTab('conjuncts', this)">Conjuncts</button>
+  </nav>
+
+  <div id="page-alphabet" class="page active">
+    <h2>Bengali Alphabet — বাংলা বর্ণমালা</h2>
+    <div id="alphabet-content"></div>
+  </div>
+
+  <div id="page-conjuncts" class="page">
+    <h2>Conjunct Consonants — যুক্তব্যঞ্জন</h2>
+    <div id="conjunct-grid"></div>
+  </div>
+
+  <p id="error"></p>
+
+  <div id="overlay">
+    <div id="modal">
+      <button id="close">&#x2715;</button>
+      <div id="detail-char"></div>
+      <div id="components-row"></div>
+      <table id="detail-table"></table>
+    </div>
+  </div>
+
+  <script>
+    const GROUP_ORDER  = ['vowel','velar','palatal','retroflex','dental','labial','other'];
+    const GROUP_LABELS = {
+      vowel:     'Vowels — স্বরবর্ণ',
+      velar:     'ক-বর্গ  ·  Velar',
+      palatal:   'চ-বর্গ  ·  Palatal',
+      retroflex: 'ট-বর্গ  ·  Retroflex',
+      dental:    'ত-বর্গ  ·  Dental',
+      labial:    'প-বর্গ  ·  Labial',
+      other:     'Other Consonants',
+    };
+
+    // ── fetch both datasets ──────────────────────────────────────────────────
+    Promise.all([
+      fetch('/api/characters').then(r => r.json()),
+      fetch('/api/conjuncts').then(r => r.json()),
+    ]).then(([chars, conjuncts]) => {
+      renderAlphabet(chars);
+      renderConjuncts(conjuncts);
+    }).catch(err => {
+      document.getElementById('error').textContent =
+        'Could not load data. Is the server running? (' + err.message + ')';
+    });
+
+    // ── alphabet ─────────────────────────────────────────────────────────────
+    function renderAlphabet(chars) {
+      const byGroup = {};
+      chars.forEach(ch => (byGroup[ch.group] = byGroup[ch.group] || []).push(ch));
+
+      const container = document.getElementById('alphabet-content');
+      GROUP_ORDER.forEach(g => {
+        const list = byGroup[g];
+        if (!list) return;
+        const section = document.createElement('div');
+        section.className = 'group';
+        section.innerHTML = `<div class="group-label">${GROUP_LABELS[g] || g}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'group-grid';
+        list.forEach(ch => {
+          const cell = document.createElement('div');
+          cell.className = 'cell char-cell';
+          cell.textContent = ch.char;
+          cell.title = ch.romanization;
+          cell.onclick = () => openCharDetail(ch);
+          grid.appendChild(cell);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+    }
+
+    // ── conjuncts ────────────────────────────────────────────────────────────
+    function renderConjuncts(list) {
+      const grid = document.getElementById('conjunct-grid');
+      list.forEach(cj => {
+        const cell = document.createElement('div');
+        cell.className = 'cell conjunct-cell';
+        cell.innerHTML = `<span>${cj.char}</span><span class="components-hint">${cj.components.join('+')}</span>`;
+        cell.title = cj.romanization;
+        cell.onclick = () => openConjunctDetail(cj);
+        grid.appendChild(cell);
+      });
+    }
+
+    // ── detail modals ─────────────────────────────────────────────────────────
+    function openCharDetail(ch) {
+      document.getElementById('detail-char').textContent = ch.char;
+      document.getElementById('components-row').innerHTML = '';
+
+      let html = [
+        ['Group',   GROUP_LABELS[ch.group] || ch.group],
+        ['Sound',   ch.romanization],
+        ['Example', ch.example_word],
+      ].map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+      if (ch.vowel_sign) {
+        html += `<tr><td>Vowel sign</td><td>
+          <div class="vowel-sign-pair">
+            <div class="vowel-sign-glyph">${ch.vowel_sign}</div>
+            <div class="vowel-sign-example">${ch.vowel_sign_example_word}</div>
+          </div></td></tr>`;
+      }
+
+      document.getElementById('detail-table').innerHTML = html;
+      document.getElementById('overlay').classList.add('open');
+    }
+
+    function openConjunctDetail(cj) {
+      document.getElementById('detail-char').textContent = '';
+
+      // components row: A + B → AB
+      const row = document.getElementById('components-row');
+      row.className = 'components-row';
+      let rowHTML = '';
+      cj.components.forEach((c, i) => {
+        if (i > 0) rowHTML += `<span class="plus">+</span>`;
+        rowHTML += `<div class="component-box"><span class="glyph">${c}</span></div>`;
+      });
+      rowHTML += `<span class="arrow">→</span>
+        <div class="result-box">
+          <span class="glyph">${cj.char}</span>
+          <span class="label">${cj.romanization}</span>
+        </div>`;
+      row.innerHTML = rowHTML;
+
+      document.getElementById('detail-table').innerHTML = [
+        ['Sound',   cj.romanization],
+        ['Example', cj.example_word],
+      ].map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+      document.getElementById('overlay').classList.add('open');
+    }
+
+    // ── tab switching ─────────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ── modal close ───────────────────────────────────────────────────────────
+    const overlay = document.getElementById('overlay');
+    document.getElementById('close').onclick = () => overlay.classList.remove('open');
+    overlay.onclick = e => { if (e.target === overlay) overlay.classList.remove('open'); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('open'); });
+  </script>
+</body>
+</html>
