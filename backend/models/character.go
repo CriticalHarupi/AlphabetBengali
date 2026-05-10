@@ -10,5 +10,3 @@ type Character struct {
 	VowelSign            string `json:"vowel_sign,omitempty"`
 	VowelSignExampleWord string `json:"vowel_sign_example_word,omitempty"`
 }
-
-// test
