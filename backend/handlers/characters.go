@@ -11,6 +11,7 @@ import (
 
 func GetCharacters(c *gin.Context) {
 	c.JSON(http.StatusOK, data.Characters)
+	// test
 }
 
 func GetCharacterByID(c *gin.Context) {
