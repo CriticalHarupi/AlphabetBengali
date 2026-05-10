@@ -13,7 +13,7 @@ jobs:
 
       - name: Build test image
         working-directory: backend
-        run: docker build --target builder -t test-image .
+        run: docker build --target test -t test-image .
 
       - name: Test
         run: docker run --rm test-image go test ./models/...
