@@ -1,9 +1,9 @@
-name: Test
+name: Test (models)
 
 on:
   push:
     paths:
-      - 'backend/**'
+      - 'backend/models/**'
 
 jobs:
   test:
@@ -18,4 +18,4 @@ jobs:
 
       - name: Test
         working-directory: backend
-        run: go test ./...
+        run: go test ./models/...
