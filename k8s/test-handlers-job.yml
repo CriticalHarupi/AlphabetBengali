@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-handlers
+  namespace: alphabetbengali
+spec:
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: test-handlers
+          image: asia-northeast1-docker.pkg.dev/project-b8ee474a-9624-49ce-b08/alphabetbengali/test:${IMAGE_TAG}
+          command: ["go", "test", "./handlers/..."]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
