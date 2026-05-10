@@ -5,6 +5,7 @@ metadata:
   namespace: alphabetbengali
 spec:
   ttlSecondsAfterFinished: 120
+  backoffLimit: 0
   template:
     spec:
       restartPolicy: Never
