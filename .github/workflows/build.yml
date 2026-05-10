@@ -11,11 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: backend/go.mod
-
-      - name: Build
+      - name: Build Docker image
         working-directory: backend
-        run: go build ./...
+        run: docker build .
