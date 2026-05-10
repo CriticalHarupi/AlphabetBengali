@@ -23,6 +23,9 @@ jobs:
           workload_identity_provider: projects/581223007151/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-actions@project-b8ee474a-9624-49ce-b08.iam.gserviceaccount.com
 
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+
       - name: Configure kubectl
         uses: google-github-actions/get-gke-credentials@v2
         with:
