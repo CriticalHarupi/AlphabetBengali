@@ -8,13 +8,10 @@ on:
 jobs:
   test:
     runs-on: go-test
+    container:
+      image: golang:1.26.2
     steps:
       - uses: actions/checkout@v6
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: backend/go.mod
 
       - name: Test
         working-directory: backend

@@ -2,7 +2,11 @@
 
 Working on Windows 11 Home.
 
-## Setup Local Working Env
+## Solution 1
+
+For solution 1, we just run the tests on ARC created runner pods on k8s.  
+
+### Setup Local Working Env
 
 - gcloud
 - kubectl
@@ -22,7 +26,7 @@ Install helm using winget:
 winget install Helm.Helm
 ```
 
-## Set up Cloud Env
+### Set up Cloud Env
 
 Set up clusters in cloud:  
 
@@ -64,5 +68,29 @@ helm install go-test `
   oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 ```
 
+### Set up yml for Workflow
+
 As we named the scale set go-test, we use this as label for `runs-on` in ymls for GitHub Actions workflows.  
+
+Also, because we are using the ARC images to run the tests, we need to install dynamically for each run.  
+
+```yml
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+```
+
+This worked.  
+But it is not very efficient, as each run you will need to set up go, and that costs time and resources on cloud. So I am doing a solution 2.  
+
+## Solution 2
+
+For solution 2, Almost everything is same, just that I will try out this instead of a step to set up go:  
+
+```yml
+    runs-on: go-test
+    container:
+      image: golang:1.26.2
+```
 
