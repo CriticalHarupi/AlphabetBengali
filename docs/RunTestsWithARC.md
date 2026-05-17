@@ -62,6 +62,7 @@ Set the PAT from GitHub to my ARC:
 ```powershell
 helm install go-test `
   --namespace arc-runners `
+  --create-namespace `
   --set githubConfigUrl="https://github.com/CriticalHarupi/AlphabetBengali" `
   --set githubConfigSecret.github_token="MY_PAT" `
   --set runnerScaleSetName="go-test" `
@@ -99,6 +100,7 @@ But with that, I need to install the ARC with some extra configs:
 ```powershell
 helm install go-test `
   --namespace arc-runners `
+  --create-namespace `
   --set githubConfigUrl="https://github.com/CriticalHarupi/AlphabetBengali" `
   --set githubConfigSecret.github_token="MY_PAT" `
   --set runnerScaleSetName="go-test" `
@@ -125,4 +127,57 @@ template:
       fsGroup: 123
 ```
 
-This tells the ARC to create a new pod when the ci workflow uses `container` keyword, and run that job in the specified image.
+This tells the ARC to create a new pod when the ci workflow uses `container` keyword, and run that job in the specified image.  
+
+## Solutions 3
+
+Solution 2 is much faster then solution 1, but it still have some problems (or trade-offs, depends on app and ci task).  
+
+For example, we still need to pull the golang image, although it will be cached in cluster node, but that could be updated and still need to be loaded by the pod for running our ci task.  
+
+Another solution is to prepare an image that includes all things we need for our test. (ARC and go, for this project)  
+And if we store that image on cloud, we can config ARC to use that image for our ci tasks.  
+
+### Set up Cloud Env
+
+First, we need an artifact repository on cloud to store our image.  
+
+```powershell
+gcloud artifacts repositories create alphabetbengali `
+  --repository-format=docker `
+  --location=asia-northeast1
+```
+
+Then, we build the image and register it.  
+This is done by [build-runner.yml](../.github/workflows/build-runner.yml).  
+This workflow will not be executed a lot (when docker file is updated).  
+
+With this image stored in cloud, our ci task only needs to load it to run the tests.
+
+And now we need to install the ARC like this:  
+
+```powershell
+helm install go-test `
+  --namespace arc-runners `
+  --create-namespace `
+  --set githubConfigUrl="https://github.com/CriticalHarupi/AlphabetBengali" `
+  --set githubConfigSecret.github_token="MY_PAT" `
+  --set runnerScaleSetName="go-test" `
+  -f k8s/arc-runner-image-values.yml `
+  oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+```
+
+In which, the `arc-runner-image-values.yml` is like this:  
+(It tells ARC what runner image it should use, that is, the one we stored in cloud)  
+
+```yml
+template:
+  spec:
+    containers:
+      - name: runner
+        image: asia-northeast1-docker.pkg.dev/project-b8ee474a-9624-49ce-b08/alphabetbengali/runner:latest
+        command: ["/home/runner/run.sh"]
+```
+
+Thus, in the ci task yml, we don't need both setup-go part or the container part.  
+Because the runner image had it prepared.  
