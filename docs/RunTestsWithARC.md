@@ -94,3 +94,35 @@ For solution 2, Almost everything is same, just that I will try out this instead
       image: golang:1.26.2
 ```
 
+But with that, I need to install the ARC with some extra configs:  
+
+```powershell
+helm install go-test `
+  --namespace arc-runners `
+  --set githubConfigUrl="https://github.com/CriticalHarupi/AlphabetBengali" `
+  --set githubConfigSecret.github_token="MY_PAT" `
+  --set runnerScaleSetName="go-test" `
+  -f k8s/arc-values.yml `
+  oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+```
+
+And `k8s/arc-values.yml` is like this:  
+
+```yml
+containerMode:
+  type: kubernetes
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: "standard"
+    resources:
+      requests:
+        storage: 1Gi
+  kubernetesModeServiceAccountName: "default"
+
+template:
+  spec:
+    securityContext:
+      fsGroup: 123
+```
+
+This tells the ARC to create a new pod when the ci workflow uses `container` keyword, and run that job in the specified image.

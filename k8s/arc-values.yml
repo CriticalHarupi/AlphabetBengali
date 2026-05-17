@@ -6,3 +6,9 @@ containerMode:
     resources:
       requests:
         storage: 1Gi
+  kubernetesModeServiceAccountName: "default"
+
+template:
+  spec:
+    securityContext:
+      fsGroup: 123
