@@ -9,9 +9,6 @@ on:
 jobs:
   test:
     runs-on: go-test
-    container:
-      image: golang:1.26.2
-      options: --user root
     steps:
       - uses: actions/checkout@v6
 
