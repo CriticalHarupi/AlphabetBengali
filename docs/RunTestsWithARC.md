@@ -61,8 +61,6 @@ helm install go-test `
   --set githubConfigUrl="https://github.com/CriticalHarupi/AlphabetBengali" `
   --set githubConfigSecret.github_token="MY_PAT" `
   --set runnerScaleSetName="go-test" `
-  --set "template.spec.containers[0].name=runner" `
-  --set "template.spec.containers[0].image=golang:1.26.2" `
   oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 ```
 
